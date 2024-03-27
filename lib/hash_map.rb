@@ -3,13 +3,17 @@ require './node'
 
 class Hashmap 
 
+    attr_reader :size
+
     INIT32  = 0x811c9dc5
     PRIME32 = 0x01000193
     MOD32   = 2 ** 32
+    LOAD = 0.75
 
-    def initialize
-        @buckets = Array.new(500)
-    end 
+    def initialize(number = 32)
+        @size = number
+        @buckets = Array.new(number)
+        end 
 
     #raise IndexError if index.negative? || index >= @buckets.length
 
@@ -22,14 +26,25 @@ class Hashmap
             hash = (hash * PRIME32) % MOD32
             hash = hash ^ byte
         end
-        hash % 500
+        hash % @size
     end
      
 
     def set(key, value)
+        if self.length >= LOAD*@size
+            extend_map
+        end 
         index = hash(key)
         raise IndexError if index.negative? || index >= @buckets.length
         @buckets[index] = [key, value]
+    end 
+
+    def extend_map 
+        new_array = []
+        new_array = Array.new(@size*2)
+        p new_array
+        entries.each {|entry| new_array[hash(entry[0])] = [entry[0], entry[1]]}
+        @buckets = new_array 
     end 
 
     def get(key)
@@ -39,7 +54,7 @@ class Hashmap
     end 
 
     def length
-        count = -1 
+        count = 0 
         @buckets.each do |buck|
             if buck != nil
                 count+=1
@@ -86,7 +101,8 @@ class Hashmap
 
 end 
 
-hashmap = Hashmap.new()
+
+hashmap = Hashmap.new(8)
 
 link = Linked_List.new
 
@@ -97,7 +113,8 @@ link3 = Linked_List.new
 link4 = Linked_List.new
  
 
-hashmap.set("link4", link4)
+
+
 
 link.append("one")
 
@@ -130,17 +147,22 @@ link3.insert_at("kurwa mac", 3)
 link3.insert_at('ja ciebe', 0)
 
 
-hashmap.set('link', link)
-hashmap.set('link2', link2)
-hashmap.set('link3', link3)
+hashmap.set('one', 1)
+hashmap.set('two', 2)
+hashmap.set('gazeebo', 3)
+hashmap.set("four", 4)
+hashmap.set("umbilical", 6)
+hashmap.set("gigh", 7)
+hashmap.set("seven", 5)
 
 hashmap.get('link3').to_s
 
 p hashmap.has?('link2')
 p hashmap.has?("babibo")
 
+p hashmap.length > 0.75*hashmap.size
 
-puts hashmap.entries
+p hashmap
 
 
 
